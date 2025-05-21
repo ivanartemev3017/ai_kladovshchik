@@ -1,9 +1,9 @@
-// lib/screens/storage_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/storage.dart';
 import 'zones_screen.dart';
+import '../widgets/background_wrapper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StorageListScreen extends StatefulWidget {
   const StorageListScreen({super.key});
@@ -85,52 +85,74 @@ class _StorageListScreenState extends State<StorageListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Мои склады'),
-        leading: IconButton(
-          icon: const Text('<'),
-          onPressed: () => Navigator.pop(context),
+    return BackgroundWrapper(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+		  backgroundColor: Colors.black87,
+		  foregroundColor: Colors.white,
+          title: Text(AppLocalizations.of(context)!.goToStorages),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: ValueListenableBuilder(
-        valueListenable: storageBox.listenable(),
-        builder: (context, Box<Storage> box, _) {
-          if (box.isEmpty) {
-            return const Center(child: Text('Нет складов'));
-          }
-          return ListView.builder(
-            itemCount: box.length,
-            itemBuilder: (context, index) {
-              final storage = box.getAt(index)!;
-              return ListTile(
-                title: Text(storage.name),
-                subtitle: Text('Создан: ${storage.createdAt}'),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => ZonesScreen(storage: storage)),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () => _addOrEditStorage(storage: storage),
-                      child: const Text('✏'),
-                    ),
-                    TextButton(
-                      onPressed: () => _deleteStorage(storage),
-                      child: const Text('❌'),
-                    ),
-                  ],
+        body: ValueListenableBuilder(
+          valueListenable: storageBox.listenable(),
+          builder: (context, Box<Storage> box, _) {
+            if (box.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Нет складов',
+                  style: TextStyle(color: Colors.white70),
                 ),
               );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addOrEditStorage(),
-        child: const Text('+'),
+            }
+            return ListView.builder(
+              itemCount: box.length,
+              itemBuilder: (context, index) {
+                final storage = box.getAt(index)!;
+                return Card(
+                  color: Colors.black54,
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: ListTile(
+                    title: Text(
+                      storage.name,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      'Создан: ${storage.createdAt.toString().split(".")[0]}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ZonesScreen(storage: storage),
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.orange),
+                          onPressed: () => _addOrEditStorage(storage: storage),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.redAccent),
+                          onPressed: () => _deleteStorage(storage),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _addOrEditStorage(),
+          child: const Text('+'),
+        ),
       ),
     );
   }

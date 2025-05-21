@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../models/storage.dart';
 import '../models/zone.dart';
 import 'items_screen.dart';
+import '../widgets/background_wrapper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ZonesScreen extends StatefulWidget {
   final Storage storage;
@@ -28,15 +29,19 @@ class _ZonesScreenState extends State<ZonesScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(zone == null ? 'Добавить зону' : 'Редактировать зону'),
+        title: Text(zone == null
+            ? AppLocalizations.of(context)!.addZone
+            : AppLocalizations.of(context)!.editZone),
         content: TextField(
           controller: nameController,
-          decoration: const InputDecoration(labelText: 'Название зоны'),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.zoneName,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -58,7 +63,7 @@ class _ZonesScreenState extends State<ZonesScreen> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -69,16 +74,16 @@ class _ZonesScreenState extends State<ZonesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Удалить зону?'),
-        content: const Text('Все предметы в зоне тоже будут удалены.'),
+        title: Text(AppLocalizations.of(context)!.deleteZone),
+        content: Text(AppLocalizations.of(context)!.zoneDeleteWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Удалить'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -96,51 +101,70 @@ class _ZonesScreenState extends State<ZonesScreen> {
         .where((z) => z.storageId == widget.storage.id)
         .toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Зоны: ${widget.storage.name}'),
-        leading: IconButton(
-          icon: const Text('<'),
-          onPressed: () => Navigator.pop(context),
+    return BackgroundWrapper(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+		  backgroundColor: Colors.black87,
+		  foregroundColor: Colors.white,
+          title: Text('${AppLocalizations.of(context)!.zones}: ${widget.storage.name}'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: zones.isEmpty
-          ? const Center(child: Text('Нет зон'))
-          : ListView.builder(
-              itemCount: zones.length,
-              itemBuilder: (_, index) {
-                final zone = zones[index];
-                return ListTile(
-                  title: Text(zone.name),
-                  subtitle:
-                      Text('Создана: ${zone.createdAt.toIso8601String()}'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ItemsScreen(zone: zone),
+        body: zones.isEmpty
+            ? Center(
+                child: Text(
+                  AppLocalizations.of(context)!.noZones,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              )
+            : ListView.builder(
+                itemCount: zones.length,
+                itemBuilder: (_, index) {
+                  final zone = zones[index];
+                  return Card(
+                    color: Colors.black54,
+                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    child: ListTile(
+                      title: Text(
+                        zone.name,
+                        style: const TextStyle(color: Colors.white),
                       ),
-                    );
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextButton(
-                        onPressed: () => _addOrEditZone(zone: zone),
-                        child: const Text('✏'),
+                      subtitle: Text(
+                        '${AppLocalizations.of(context)!.created}: ${zone.createdAt.toString().split(".")[0]}',
+                        style: const TextStyle(color: Colors.white70),
                       ),
-                      TextButton(
-                        onPressed: () => _deleteZone(zone),
-                        child: const Text('❌'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ItemsScreen(zone: zone),
+                          ),
+                        );
+                      },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () => _addOrEditZone(zone: zone),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            onPressed: () => _deleteZone(zone),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _addOrEditZone(),
-        child: const Text('+'),
+                    ),
+                  );
+                },
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _addOrEditZone(),
+          child: const Text('+'),
+        ),
       ),
     );
   }

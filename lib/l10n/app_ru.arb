@@ -1,0 +1,17 @@
+{
+  "@@locale": "ru",
+  "appTitle": "AI Кладовщик",
+  "goToStorages": "Перейти к складам",
+  "myProfile": "Мой профиль",
+  "zones": "Зоны",
+  "noZones": "Нет зон",
+  "addZone": "Добавить зону",
+  "editZone": "Редактировать зону",
+  "zoneName": "Название зоны",
+  "created": "Создана",
+  "deleteZone": "Удалить зону?",
+  "zoneDeleteWarning": "Все предметы в зоне тоже будут удалены.",
+  "cancel": "Отмена",
+  "save": "Сохранить",
+  "delete": "Удалить"
+}

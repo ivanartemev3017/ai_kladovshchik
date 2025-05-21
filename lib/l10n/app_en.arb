@@ -1,0 +1,16 @@
+{
+  "appTitle": "AI Warehouse",
+  "goToStorages": "Go to storages",
+  "myProfile": "My Profile",
+  "zones": "Zones",
+  "noZones": "No zones",
+  "addZone": "Add zone",
+  "editZone": "Edit zone",
+  "zoneName": "Zone name",
+  "created": "Created",
+  "deleteZone": "Delete zone?",
+  "zoneDeleteWarning": "All items in the zone will also be deleted.",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete"
+}
