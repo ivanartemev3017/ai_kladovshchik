@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "359840566413",
+    "project_id": "ai-kladovshchik",
+    "storage_bucket": "ai-kladovshchik.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359840566413:android:d8b50efd9eb8fba1d066c4",
+        "android_client_info": {
+          "package_name": "com.example.ai_kladovshchik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdqMYT49D1cKeo08co7lrJ39jj2MpDqdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
