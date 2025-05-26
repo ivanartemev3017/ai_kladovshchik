@@ -12,7 +12,12 @@
           "package_name": "com.example.ai_kladovshchik"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "359840566413-m2c0iv26lvpnarkfeq65ituksg2d7th9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCdqMYT49D1cKeo08co7lrJ39jj2MpDqdM"
@@ -20,7 +25,63 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "359840566413-m2c0iv26lvpnarkfeq65ituksg2d7th9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "359840566413-o90ts2srvgpbtg7kn1pqeppkfmn1g23q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aiKladovshchikFinal"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359840566413:android:60b31735615bf36cd066c4",
+        "android_client_info": {
+          "package_name": "com.example.ai_kladovshchik_final"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "359840566413-ghmb98tpa6f051hm1h9c66hatt4ukeaa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ai_kladovshchik_final",
+            "certificate_hash": "c33b62e1bf50aae1a87232c781f4e6fdd9a98810"
+          }
+        },
+        {
+          "client_id": "359840566413-m2c0iv26lvpnarkfeq65ituksg2d7th9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdqMYT49D1cKeo08co7lrJ39jj2MpDqdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "359840566413-m2c0iv26lvpnarkfeq65ituksg2d7th9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "359840566413-o90ts2srvgpbtg7kn1pqeppkfmn1g23q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aiKladovshchikFinal"
+              }
+            }
+          ]
         }
       }
     }

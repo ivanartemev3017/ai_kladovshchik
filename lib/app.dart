@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'screens/home_screen.dart';
+import 'providers/locale_provider.dart';
 import 'routes.dart';
 
 class App extends StatelessWidget {
@@ -9,23 +10,25 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
     return MaterialApp(
       title: 'AI Кладовщик',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
+      locale: localeProvider.locale, // 👈 динамически
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ru'),
+      ],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ru'),
-      ],
-      locale: const Locale('ru'), // можно сделать динамическим позже
       initialRoute: '/',
       routes: appRoutes,
     );
