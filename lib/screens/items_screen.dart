@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -93,22 +94,31 @@ class _ItemsScreenState extends State<ItemsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: Text(item == null ? 'Добавить вещь' : 'Редактировать вещь',
-            style: const TextStyle(color: Colors.white)),
+        title: Text(
+          item == null
+              ? AppLocalizations.of(context)!.addItem
+              : AppLocalizations.of(context)!.editItem,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDarkInputField(nameController, 'Название'),
+              _buildDarkInputField(
+                  nameController, AppLocalizations.of(context)!.itemName),
               const SizedBox(height: 8),
-              _buildDarkInputField(quantityController, 'Количество', isNumber: true),
+              _buildDarkInputField(quantityController,
+                  AppLocalizations.of(context)!.itemQuantity,
+                  isNumber: true),
               const SizedBox(height: 8),
-              _buildDarkInputField(costController, 'Стоимость (необязательно)', isNumber: true),
+              _buildDarkInputField(
+                  costController, AppLocalizations.of(context)!.itemCost,
+                  isNumber: true),
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: pickImage,
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                child: const Text('Выбрать фото'),
+                child: Text(AppLocalizations.of(context)!.choosePhoto),
               ),
               if (imagePath != null)
                 Padding(
@@ -124,12 +134,14 @@ class _ItemsScreenState extends State<ItemsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена', style: TextStyle(color: Colors.grey)),
+            child: Text(AppLocalizations.of(context)!.cancel,
+                style: const TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
               final name = nameController.text.trim();
-              final quantity = int.tryParse(quantityController.text.trim()) ?? 1;
+              final quantity =
+                  int.tryParse(quantityController.text.trim()) ?? 1;
               final cost = double.tryParse(costController.text.trim());
               if (item != null) {
                 _editItem(item, name, quantity, cost, imagePath);
@@ -139,13 +151,12 @@ class _ItemsScreenState extends State<ItemsScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
     );
   }
-
   List<Item> _getFilteredAndSortedItems() {
     List<Item> items = _itemsBox.values
         .where((i) => i.zoneId == widget.zone.id)
@@ -184,17 +195,17 @@ class _ItemsScreenState extends State<ItemsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text('Статистика зоны', style: TextStyle(color: Colors.white)),
+        title: Text(AppLocalizations.of(context)!.zoneStatsTitle,
+            style: const TextStyle(color: Colors.white)),
         content: Text(
-          'Всего разных вещей: $totalItems\n'
-          'Суммарное количество: $totalQuantity\n'
-          'Суммарная стоимость: ${totalCost.toStringAsFixed(2)}₸',
+          '${AppLocalizations.of(context)!.zoneStatsBody(totalItems, totalQuantity, totalCost.toStringAsFixed(2))}',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Закрыть', style: TextStyle(color: Colors.tealAccent)),
+            child: Text(AppLocalizations.of(context)!.close,
+                style: const TextStyle(color: Colors.tealAccent)),
           ),
         ],
       ),
@@ -208,8 +219,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black87,
-		foregroundColor: Colors.white,
-        title: Text('Вещи в зоне: ${widget.zone.name}'),
+        foregroundColor: Colors.white,
+        title: Text('${AppLocalizations.of(context)!.itemsInZone}: ${widget.zone.name}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -223,9 +234,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'stats',
-                child: Text('Статистика'),
+                child: Text(AppLocalizations.of(context)!.stats),
               ),
             ],
           ),
@@ -248,7 +259,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.black54,
-                  hintText: 'Поиск по названию...',
+                  hintText: AppLocalizations.of(context)!.searchByName,
                   hintStyle: const TextStyle(color: Colors.white54),
                   prefixIcon: const Icon(Icons.search, color: Colors.white),
                   border: OutlineInputBorder(
@@ -258,61 +269,70 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 ),
               ),
             ),
-			Padding(
-			  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-			  child: Container(
-				padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
-				decoration: BoxDecoration(
-				  color: Colors.black45, // 👈 фон под текст и выпадашку
-				  borderRadius: BorderRadius.circular(8),
-				),
-				child: Row(
-				  children: [
-					const Text(
-					  'Сортировка: ',
-					  style: TextStyle(
-						color: Colors.white,
-						fontWeight: FontWeight.w500,
-					  ),
-					),
-					DropdownButton<String>(
-					  value: _sortOption,
-					  dropdownColor: Colors.grey[900],
-					  iconEnabledColor: Colors.white,
-					  style: const TextStyle(color: Colors.white),
-					  underline: const SizedBox(), // убрать подчёркивание
-					  onChanged: (value) {
-						if (value != null) {
-						  setState(() {
-							_sortOption = value;
-						  });
-						}
-					  },
-					  items: const [
-						DropdownMenuItem(value: 'date_desc', child: Text('Новые сверху')),
-						DropdownMenuItem(value: 'date_asc', child: Text('Старые сверху')),
-						DropdownMenuItem(value: 'quantity_asc', child: Text('Количество ↑')),
-						DropdownMenuItem(value: 'quantity_desc', child: Text('Количество ↓')),
-					  ],
-					),
-				  ],
-				),
-			  ),
-			),
-
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      '${AppLocalizations.of(context)!.sortBy} ',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    DropdownButton<String>(
+                      value: _sortOption,
+                      dropdownColor: Colors.grey[900],
+                      iconEnabledColor: Colors.white,
+                      style: const TextStyle(color: Colors.white),
+                      underline: const SizedBox(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _sortOption = value;
+                          });
+                        }
+                      },
+                      items: [
+                        DropdownMenuItem(
+                            value: 'date_desc',
+                            child: Text(AppLocalizations.of(context)!.newestFirst)),
+                        DropdownMenuItem(
+                            value: 'date_asc',
+                            child: Text(AppLocalizations.of(context)!.oldestFirst)),
+                        DropdownMenuItem(
+                            value: 'quantity_asc',
+                            child: Text(AppLocalizations.of(context)!.quantityAsc)),
+                        DropdownMenuItem(
+                            value: 'quantity_desc',
+                            child: Text(AppLocalizations.of(context)!.quantityDesc)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Expanded(
               child: items.isEmpty
-                  ? const Center(child: Text('Нет вещей', style: TextStyle(color: Colors.white70)))
+                  ? Center(
+                      child: Text(AppLocalizations.of(context)!.noItems,
+                          style: const TextStyle(color: Colors.white70)))
                   : ListView.builder(
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         final item = items[index];
                         final subtitleText = StringBuffer()
-                          ..write('Кол-во: ${item.quantity}')
+                          ..write('${AppLocalizations.of(context)!.quantity}: ${item.quantity}')
                           ..write(item.cost != null
-                              ? ' — Цена: ${item.cost!.toStringAsFixed(2)}₸'
+                              ? ' — ${AppLocalizations.of(context)!.itemCost}: ${item.cost!.toStringAsFixed(2)}₸'
                               : '')
-                          ..write(' — Добавлено: ${item.addedAt.toString().split(".")[0]}');
+                          ..write(' — ${AppLocalizations.of(context)!.added}: ${item.addedAt.toString().split(".")[0]}');
                         return Card(
                           color: Colors.black45,
                           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -325,7 +345,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
                                     fit: BoxFit.cover,
                                   )
                                 : const Icon(Icons.inventory, color: Colors.white),
-                            title: Text(item.name, style: const TextStyle(color: Colors.white)),
+                            title: Text(item.name,
+                                style: const TextStyle(color: Colors.white)),
                             subtitle: Text(subtitleText.toString(),
                                 style: const TextStyle(color: Colors.white70)),
                             trailing: Row(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/background_wrapper.dart'; // не забудь создать этот файл
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // если хочешь переводы
+import '../widgets/background_wrapper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,9 +9,17 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BackgroundWrapper(
       child: Scaffold(
-        backgroundColor: Colors.transparent, // обязательно!
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.appTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+          ],
         ),
         body: Center(
           child: ElevatedButton(

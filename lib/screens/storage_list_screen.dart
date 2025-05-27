@@ -21,15 +21,21 @@ class _StorageListScreenState extends State<StorageListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(storage == null ? 'Добавить склад' : 'Редактировать склад'),
+        title: Text(
+          storage == null
+              ? AppLocalizations.of(context)!.addStorage
+              : AppLocalizations.of(context)!.editStorage,
+        ),
         content: TextField(
           controller: nameController,
-          decoration: const InputDecoration(labelText: 'Название склада'),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.storageName,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -51,7 +57,7 @@ class _StorageListScreenState extends State<StorageListScreen> {
               Navigator.pop(context);
               setState(() {});
             },
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -62,16 +68,16 @@ class _StorageListScreenState extends State<StorageListScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Удалить склад?'),
-        content: const Text('Все зоны и вещи внутри будут удалены.'),
+        title: Text(AppLocalizations.of(context)!.deleteStorageTitle),
+        content: Text(AppLocalizations.of(context)!.deleteStorageMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Удалить'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -89,8 +95,8 @@ class _StorageListScreenState extends State<StorageListScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-		  backgroundColor: Colors.black87,
-		  foregroundColor: Colors.white,
+          backgroundColor: Colors.black87,
+          foregroundColor: Colors.white,
           title: Text(AppLocalizations.of(context)!.goToStorages),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -101,10 +107,10 @@ class _StorageListScreenState extends State<StorageListScreen> {
           valueListenable: storageBox.listenable(),
           builder: (context, Box<Storage> box, _) {
             if (box.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'Нет складов',
-                  style: TextStyle(color: Colors.white70),
+                  AppLocalizations.of(context)!.noStorages,
+                  style: const TextStyle(color: Colors.white70),
                 ),
               );
             }
@@ -121,7 +127,7 @@ class _StorageListScreenState extends State<StorageListScreen> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      'Создан: ${storage.createdAt.toString().split(".")[0]}',
+                      '${AppLocalizations.of(context)!.createdAt}: ${storage.createdAt.toString().split(".")[0]}',
                       style: const TextStyle(color: Colors.white70),
                     ),
                     onTap: () => Navigator.push(

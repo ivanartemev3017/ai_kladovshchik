@@ -50,4 +50,15 @@ class LocaleProvider with ChangeNotifier {
       }, SetOptions(merge: true));
     } catch (_) {}
   }
+
+  /// Синхронизировать текущий язык в Firestore вручную
+  Future<void> syncLocaleToFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({'language': _locale.languageCode}, SetOptions(merge: true));
+    }
+  }
 }

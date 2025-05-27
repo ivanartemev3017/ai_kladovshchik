@@ -36,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       });
     } catch (e) {
       setState(() {
-        error = 'Ошибка при загрузке плана';
+        error = AppLocalizations.of(context)!.planLoadError;
         loading = false;
       });
     }
@@ -64,39 +64,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.email ?? 'Неизвестный пользователь',
+                    user?.email ?? AppLocalizations.of(context)!.unknownUser,
                     style: const TextStyle(fontSize: 16),
                   ),
 
                   const SizedBox(height: 32),
-                  const Text('🌐 Сменить язык',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(
+                    AppLocalizations.of(context)!.changeLanguage,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.language),
-                    label: Text(localeProvider.locale.languageCode == 'ru'
-                        ? 'Switch to English'
-                        : 'Переключить на Русский'),
+                    label: Text(
+                      localeProvider.locale.languageCode == 'ru'
+                          ? AppLocalizations.of(context)!.switchToEnglish
+                          : AppLocalizations.of(context)!.switchToRussian,
+                    ),
                     onPressed: () {
                       localeProvider.toggleLocale();
                     },
                   ),
 
                   const SizedBox(height: 32),
-                  const Text('💼 Мой план',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(
+                    AppLocalizations.of(context)!.myPlan,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   if (error != null)
                     Text(error!, style: const TextStyle(color: Colors.red)),
-                  if (plan != null) Text('Текущий план: ${_getPlanLabel(plan!)}'),
+                  if (plan != null)
+                    Text(AppLocalizations.of(context)!.currentPlan(_getPlanLabel(plan!))),
                   const SizedBox(height: 8),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.upgrade),
-                    label: const Text('Обновить план'),
+                    label: Text(AppLocalizations.of(context)!.upgradePlan),
                     onPressed: () {
-                      // Здесь позже будет реальный экран оплаты
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Функция в разработке')),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.underDevelopment),
+                        ),
                       );
                     },
                   ),
@@ -105,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   ElevatedButton.icon(
                     icon: const Icon(Icons.logout),
-                    label: const Text('Выйти'),
+                    label: Text(AppLocalizations.of(context)!.logOut),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () async {
                       await FirebaseAuth.instance.signOut();
@@ -121,10 +129,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getPlanLabel(String planCode) {
     switch (planCode) {
       case 'premium':
-        return 'Премиум';
+        return AppLocalizations.of(context)!.premium;
       case 'free':
       default:
-        return 'Бесплатный';
+        return AppLocalizations.of(context)!.free;
     }
   }
 }
