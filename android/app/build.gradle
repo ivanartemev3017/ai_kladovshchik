@@ -64,6 +64,11 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+// dependencies {}
+
+dependencies {
+    // ✅ Зависимость App Check для режима отладки
+    implementation 'com.google.firebase:firebase-appcheck-debug:17.0.0'
+}
 
 apply plugin: 'com.google.gms.google-services' // ✅ Обязательно

@@ -18,11 +18,11 @@ class ItemAdapter extends TypeAdapter<Item> {
     };
     return Item(
       id: fields[0] as String,
-      name: fields[1] as String,
-      quantity: fields[2] as int,
-      zoneId: fields[3] as String,
-      addedAt: fields[4] as DateTime,
-      cost: fields[5] as double?,
+      zoneId: fields[1] as String,
+      name: fields[2] as String,
+      quantity: fields[3] as int,
+      cost: fields[4] as double?,
+      addedAt: fields[5] as DateTime,
       imagePath: fields[6] as String?,
     );
   }
@@ -34,15 +34,15 @@ class ItemAdapter extends TypeAdapter<Item> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(2)
-      ..write(obj.quantity)
-      ..writeByte(3)
       ..write(obj.zoneId)
+      ..writeByte(2)
+      ..write(obj.name)
+      ..writeByte(3)
+      ..write(obj.quantity)
       ..writeByte(4)
-      ..write(obj.addedAt)
-      ..writeByte(5)
       ..write(obj.cost)
+      ..writeByte(5)
+      ..write(obj.addedAt)
       ..writeByte(6)
       ..write(obj.imagePath);
   }

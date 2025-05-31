@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../models/item.dart';
 import '../models/zone.dart';
+import 'package:path/path.dart' as path;
+import 'full_image_screen.dart';
 
 class ItemsScreen extends StatefulWidget {
   final Zone zone;
@@ -21,6 +23,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   String _sortOption = 'date_desc';
+  String? _imagePath;
 
   @override
   void initState() {
@@ -75,20 +78,38 @@ class _ItemsScreenState extends State<ItemsScreen> {
     final nameController = TextEditingController(text: item?.name ?? '');
     final quantityController = TextEditingController(text: item != null ? item.quantity.toString() : '');
     final costController = TextEditingController(text: item?.cost?.toString() ?? '');
-    String? imagePath = item?.imagePath;
-
-    Future<void> pickImage() async {
-      final picker = ImagePicker();
-      final result = await picker.pickImage(source: ImageSource.gallery);
-      if (result != null) {
-        final savedPath = await saveImagePermanently(result);
-        if (savedPath != null) {
-          setState(() {
-            imagePath = savedPath;
-          });
-        }
-      }
-    }
+    _imagePath = item?.imagePath;
+	
+	void showImageSourceDialog() {
+      showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: Text(
+          AppLocalizations.of(context)!.choosePhoto,
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              pickImage(false); // 📁 Галерея
+            },
+            child: Text('📁 ${AppLocalizations.of(context)!.gallery}',
+                style: const TextStyle(color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              pickImage(true); // 📷 Камера
+            },
+            child: Text('📷 ${AppLocalizations.of(context)!.camera}',
+                style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
     showDialog(
       context: context,
@@ -115,19 +136,44 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   costController, AppLocalizations.of(context)!.itemCost,
                   isNumber: true),
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: pickImage,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-                child: Text(AppLocalizations.of(context)!.choosePhoto),
-              ),
-              if (imagePath != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: SizedBox(
-                    height: 100,
-                    child: Image.file(File(imagePath!), fit: BoxFit.cover),
-                  ),
-                ),
+			  Row(
+			    children: [
+				  Expanded(
+				    child: ElevatedButton(
+					  onPressed: () => pickImage(false),
+					  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+					  child: Text(AppLocalizations.of(context)!.choosePhoto),
+				    ),
+				  ),
+				  const SizedBox(width: 8),
+				  Expanded(
+				    child: ElevatedButton(
+					  onPressed: () => pickImage(true),
+					  style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
+					  child: Text(AppLocalizations.of(context)!.takePhoto),
+				    ),
+				  ),
+			    ],
+			  ),
+
+			  if (_imagePath != null)
+			    GestureDetector(
+				  onTap: () {
+				    Navigator.push(
+					  context,
+					  MaterialPageRoute(
+					    builder: (_) => FullImageScreen(imagePath: _imagePath!),
+					  ),
+				    );
+				  },
+				  child: Padding(
+				    padding: const EdgeInsets.only(top: 8.0),
+				    child: SizedBox(
+					  height: 100,
+					  child: Image.file(File(_imagePath!), fit: BoxFit.cover),
+				    ),
+				  ),
+			    ),
             ],
           ),
         ),
@@ -144,9 +190,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   int.tryParse(quantityController.text.trim()) ?? 1;
               final cost = double.tryParse(costController.text.trim());
               if (item != null) {
-                _editItem(item, name, quantity, cost, imagePath);
+                _editItem(item, name, quantity, cost, _imagePath);
               } else {
-                _addItem(name, quantity, cost, imagePath);
+                _addItem(name, quantity, cost, _imagePath);
               }
               Navigator.pop(context);
             },
@@ -157,6 +203,25 @@ class _ItemsScreenState extends State<ItemsScreen> {
       ),
     );
   }
+
+  Future<void> pickImage(bool fromCamera) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(
+      source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      final savedPath = await saveImagePermanently(pickedFile);
+      if (savedPath != null) {
+        setState(() {
+          // Это будет работать, если imagePath объявлен в showItemDialog
+          // мы его пробросим через замыкание
+          _imagePath = savedPath;
+        });
+      }
+    }
+  }
+
+  
   List<Item> _getFilteredAndSortedItems() {
     List<Item> items = _itemsBox.values
         .where((i) => i.zoneId == widget.zone.id)
@@ -191,6 +256,8 @@ class _ItemsScreenState extends State<ItemsScreen> {
       return sum;
     });
 
+    final totalCostString = totalCost.toStringAsFixed(2);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -198,7 +265,11 @@ class _ItemsScreenState extends State<ItemsScreen> {
         title: Text(AppLocalizations.of(context)!.zoneStatsTitle,
             style: const TextStyle(color: Colors.white)),
         content: Text(
-          '${AppLocalizations.of(context)!.zoneStatsBody(totalItems, totalQuantity, totalCost.toStringAsFixed(2))}',
+          AppLocalizations.of(context)!.zoneStatsBody(
+            totalItems,
+            totalQuantity,
+            totalCostString,
+          ),
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -211,6 +282,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -337,14 +409,24 @@ class _ItemsScreenState extends State<ItemsScreen> {
                           color: Colors.black45,
                           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                           child: ListTile(
-                            leading: item.imagePath != null
-                                ? Image.file(
-                                    File(item.imagePath!),
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
-                                  )
-                                : const Icon(Icons.inventory, color: Colors.white),
+							leading: item.imagePath != null
+								? GestureDetector(
+									onTap: () {
+									  Navigator.push(
+										context,
+										MaterialPageRoute(
+										  builder: (_) => FullImageScreen(imagePath: item.imagePath!),
+										),
+									  );
+									},
+									child: Image.file(
+									  File(item.imagePath!),
+									  width: 48,
+									  height: 48,
+									  fit: BoxFit.cover,
+									),
+								  )
+								: const Icon(Icons.inventory, color: Colors.white),
                             title: Text(item.name,
                                 style: const TextStyle(color: Colors.white)),
                             subtitle: Text(subtitleText.toString(),
@@ -352,14 +434,14 @@ class _ItemsScreenState extends State<ItemsScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                TextButton(
-                                  onPressed: () => _showItemDialog(item: item),
-                                  child: const Text('✏', style: TextStyle(color: Colors.orange)),
-                                ),
-                                TextButton(
-                                  onPressed: () => _deleteItem(item),
-                                  child: const Text('❌', style: TextStyle(color: Colors.redAccent)),
-                                ),
+                                IconButton(
+								  icon: const Icon(Icons.edit, color: Colors.orange),
+								  onPressed: () => _showItemDialog(item: item),
+								),
+								IconButton(
+								  icon: const Icon(Icons.delete, color: Colors.redAccent),
+								  onPressed: () => _deleteItem(item),
+								),
                               ],
                             ),
                           ),

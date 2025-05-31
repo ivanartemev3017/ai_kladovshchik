@@ -8,6 +8,7 @@ import 'models/zone.dart';
 import 'models/item.dart';
 import 'app.dart';
 import 'firebase_options.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,10 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.debug,
     );
   } catch (e) {
     print('⚠️ Firebase уже инициализирован: $e');
@@ -36,3 +41,4 @@ Future<void> main() async {
     ),
   );
 }
+

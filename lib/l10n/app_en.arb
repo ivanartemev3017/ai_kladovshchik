@@ -34,6 +34,14 @@
   "choosePhoto": "Choose photo",
   "zoneStatsTitle": "Zone statistics",
   "zoneStatsBody": "Total unique items: {totalItems}\nTotal quantity: {totalQuantity}\nTotal cost: {totalCost}₸",
+  "@zoneStatsBody": {
+    "description": "Zone statistics",
+    "placeholders": {
+      "totalItems": {},
+      "totalQuantity": {},
+      "totalCost": {}
+    }
+  },
   "close": "Close",
   "logOut": "Log out",
   "switchToEnglish": "Switch to English",
@@ -53,5 +61,18 @@
   "quantityDesc": "Quantity ↓",
   "noItems": "No items",
   "noStorages": "No storages",
-  "underDevelopment": "This feature is under development"
+  "underDevelopment": "This feature is under development",
+  "makeBackup": "Create backup",
+  "premiumOnly": "This feature is available in the premium plan",
+  "backupCreated": "Backup exported to console",
+  "backupUploaded": "Backup uploaded to the cloud",
+  "restoreBackup": "Restore backup",
+  "backupRestored": "✅ Backup restored",
+  "restoreFailed": "❌ Restore failed",
+  "restoreFromList": "🔁 Restore from backup list",
+  "chooseBackup": "Choose a backup",
+  "noBackupsFound": "❌ No backups found",
+  "gallery": "Gallery",
+  "camera": "Camera",
+  "takePhoto": "Take a Photo"
 }

@@ -18,8 +18,8 @@ class ZoneAdapter extends TypeAdapter<Zone> {
     };
     return Zone(
       id: fields[0] as String,
-      name: fields[1] as String,
-      storageId: fields[2] as String,
+      storageId: fields[1] as String,
+      name: fields[2] as String,
       createdAt: fields[3] as DateTime,
     );
   }
@@ -31,9 +31,9 @@ class ZoneAdapter extends TypeAdapter<Zone> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
-      ..writeByte(2)
       ..write(obj.storageId)
+      ..writeByte(2)
+      ..write(obj.name)
       ..writeByte(3)
       ..write(obj.createdAt);
   }

@@ -18,4 +18,16 @@ class Storage extends HiveObject {
     required this.name,
     required this.createdAt,
   });
+
+  factory Storage.fromJson(Map<String, dynamic> json) => Storage(
+        id: json['id'],
+        name: json['name'],
+        createdAt: DateTime.parse(json['createdAt']),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'createdAt': createdAt.toIso8601String(),
+      };
 }
