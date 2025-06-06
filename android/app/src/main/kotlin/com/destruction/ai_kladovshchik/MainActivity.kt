@@ -1,4 +1,4 @@
-package com.destruction.ai_kladovshchik
+package com.ivanartemev.aiwarehouse
 
 import io.flutter.embedding.android.FlutterActivity
 
