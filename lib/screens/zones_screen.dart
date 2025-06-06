@@ -4,11 +4,13 @@ import '../models/storage.dart';
 import '../models/zone.dart';
 import 'items_screen.dart';
 import '../widgets/background_wrapper.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ai_kladovshchik/l10n/app_localizations.dart';
 
 class ZonesScreen extends StatefulWidget {
   final Storage storage;
-  const ZonesScreen({Key? key, required this.storage}) : super(key: key);
+  final List<Storage> storages;
+  
+  const ZonesScreen({Key? key, required this.storage, required this.storages,}) : super(key: key);
 
   @override
   State<ZonesScreen> createState() => _ZonesScreenState();
@@ -140,7 +142,7 @@ class _ZonesScreenState extends State<ZonesScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ItemsScreen(zone: zone),
+                            builder: (_) => ItemsScreen(zone: zone, zones: zones, storages: widget.storages,),
                           ),
                         );
                       },

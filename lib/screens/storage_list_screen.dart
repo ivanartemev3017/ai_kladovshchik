@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/storage.dart';
 import 'zones_screen.dart';
 import '../widgets/background_wrapper.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ai_kladovshchik/l10n/app_localizations.dart';
 
 class StorageListScreen extends StatefulWidget {
   const StorageListScreen({super.key});
@@ -14,6 +14,7 @@ class StorageListScreen extends StatefulWidget {
 
 class _StorageListScreenState extends State<StorageListScreen> {
   final storageBox = Hive.box<Storage>('storages');
+  List<Storage> storages = [];
 
   void _addOrEditStorage({Storage? storage}) {
     final nameController = TextEditingController(text: storage?.name ?? '');
@@ -114,6 +115,7 @@ class _StorageListScreenState extends State<StorageListScreen> {
                 ),
               );
             }
+			storages = box.values.toList();
             return ListView.builder(
               itemCount: box.length,
               itemBuilder: (context, index) {
@@ -133,7 +135,7 @@ class _StorageListScreenState extends State<StorageListScreen> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ZonesScreen(storage: storage),
+                        builder: (_) => ZonesScreen(storage: storage, storages: storages,),
                       ),
                     ),
                     trailing: Row(

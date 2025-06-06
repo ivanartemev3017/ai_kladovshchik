@@ -74,5 +74,8 @@
   "noBackupsFound": "❌ Резервные копии не найдены",
   "gallery": "Галерея",
   "camera": "Камера",
-  "takePhoto": "Сделать фото"
+  "takePhoto": "Сделать фото",
+  "exportToExcel": "Экспорт в Excel",
+  "feedback": "Обратная связь",
+  "feedbackError": "Не удалось открыть почтовое приложение"
 }

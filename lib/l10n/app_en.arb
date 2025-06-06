@@ -74,5 +74,8 @@
   "noBackupsFound": "❌ No backups found",
   "gallery": "Gallery",
   "camera": "Camera",
-  "takePhoto": "Take a Photo"
+  "takePhoto": "Take a Photo",
+  "exportToExcel": "Export to Excel",
+  "feedback": "Send Feedback",
+  "feedbackError": "Unable to open email app"
 }

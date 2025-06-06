@@ -1,4 +1,4 @@
-package com.example.ai_kladovshchik_final
+package com.destruction.ai_kladovshchik
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -24,8 +24,6 @@ class Item extends HiveObject {
 
   @HiveField(6)
   String? imagePath;
-  
-  String? imageUrl;
 
   Item({
     required this.id,
@@ -35,7 +33,6 @@ class Item extends HiveObject {
     required this.cost,
     required this.addedAt,
     this.imagePath,
-	this.imageUrl,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -46,7 +43,6 @@ class Item extends HiveObject {
     cost: (json['cost'] != null) ? (json['cost'] as num).toDouble() : null,
     addedAt: DateTime.parse(json['addedAt']),
     imagePath: json['imagePath'],
-    imageUrl: json['imageUrl'],
   );
 
 
@@ -58,6 +54,5 @@ class Item extends HiveObject {
         'cost': cost,
         'addedAt': addedAt.toIso8601String(),
         'imagePath': imagePath,
-		'imageUrl': imageUrl,
       };
 }

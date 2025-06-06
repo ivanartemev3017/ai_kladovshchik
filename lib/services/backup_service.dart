@@ -10,6 +10,7 @@ import '../models/zone.dart';
 import '../models/item.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart'; // для consolidateHttpClientResponseBytes
 
 Future<String?> uploadFileToFirebaseStorage(File file, String userId, String itemId) async {
   try {
@@ -81,8 +82,6 @@ class BackupService {
         if (await file.exists()) {
           final ref = FirebaseStorage.instance.ref().child('images/$cleanedId.jpg');
           await ref.putFile(file);
-          final url = await ref.getDownloadURL();
-          newItem.imageUrl = url;
         }
       }
 
@@ -142,32 +141,28 @@ class BackupService {
 	    final map = Map<String, dynamic>.from(e);
 	    final item = Item.fromJson(map);
 
-		final imageUrl = map['imageUrl'];
-		if (imageUrl != null && imageUrl is String && imageUrl.isNotEmpty) {
-		  try {
-		    final fileName = '${item.id}.jpg';
-		    final imageRef = FirebaseStorage.instance.ref().child('images/$fileName');
-		    final bytes = await imageRef.getData();
+	    final cleanedId = item.id.replaceAll(RegExp(r'[\[\]#\s]'), '');
+	    final ref = FirebaseStorage.instance.ref().child('images/$cleanedId.jpg');
 
-		    if (bytes != null) {
-			  final cleanedId = item.id.replaceAll(RegExp(r'[\[\]#\s]'), '');
-			  final fileName = 'restored_$cleanedId.jpg';
-			  final file = File('${appDir.path}/$fileName');
-			  await file.writeAsBytes(bytes);
-			  item.imagePath = file.path;
-		    } else {
-			  print('⚠️ Файл изображения не найден для item ${item.id}');
-		    }
-		  } on FirebaseException catch (e) {
-		    if (e.code == 'object-not-found') {
-			  print('⚠️ [Not found] FirebaseStorage: файл отсутствует для item ${item.id}');
-		    } else {
-			  print('⚠️ Firebase ошибка для item ${item.id}: ${e.message}');
-		    }
-		  } catch (e) {
-		    print('⚠️ Ошибка при загрузке изображения для item ${item.id}: $e');
-		}
-		}
+	    try {
+		  final bytes = await ref.getData();
+		  if (bytes != null) {
+		    final fileName = 'restored_$cleanedId.jpg';
+		    final file = File('${appDir.path}/$fileName');
+		    await file.writeAsBytes(bytes);
+		    item.imagePath = file.path;
+		  } else {
+		    print('⚠️ Файл изображения не найден для item ${item.id}');
+		  }
+	    } on FirebaseException catch (e) {
+		  if (e.code == 'object-not-found') {
+		    print('⚠️ [Not found] FirebaseStorage: файл отсутствует для item ${item.id}');
+		  } else {
+		    print('⚠️ Firebase ошибка для item ${item.id}: ${e.message}');
+		  }
+	    } catch (e) {
+		  print('⚠️ Ошибка при загрузке изображения для item ${item.id}: $e');
+	    }
 
 	    items.add(item);
 	  }

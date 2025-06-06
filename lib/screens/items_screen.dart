@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ai_kladovshchik/l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,11 +8,60 @@ import '../models/item.dart';
 import '../models/zone.dart';
 import 'package:path/path.dart' as path;
 import 'full_image_screen.dart';
+import '../services/export_service.dart';
+import '../models/storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+Widget buildLocalImage(String? path, {double width = 48, double height = 48}) {
+  if (path == null) {
+    return Icon(Icons.image_not_supported, size: width);
+  }
+
+  final file = File(path);
+  return FutureBuilder<bool>(
+    future: file.exists(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.done && snapshot.data == true) {
+        return Image.file(file, width: width, height: height, fit: BoxFit.cover);
+      } else {
+        return Icon(Icons.image_not_supported, size: width);
+      }
+    },
+  );
+}
+Widget buildImageWithFirebaseFallback(String? localPath, String firebasePath, {double width = 48, double height = 48}) {
+  if (localPath != null && File(localPath).existsSync()) {
+    return Image.file(File(localPath), width: width, height: height, fit: BoxFit.cover);
+  } else {
+    return FutureBuilder<String>(
+      future: FirebaseStorage.instance.ref(firebasePath).getDownloadURL(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SizedBox(width: width, height: height, child: Center(child: CircularProgressIndicator(strokeWidth: 2)));
+        } else if (snapshot.hasError || !snapshot.hasData) {
+          return Icon(Icons.image_not_supported, size: width);
+        } else {
+          return Image.network(snapshot.data!, width: width, height: height, fit: BoxFit.cover);
+        }
+      },
+    );
+  }
+}
 
 class ItemsScreen extends StatefulWidget {
   final Zone zone;
+  final List<Zone> zones;
+  final List<Storage> storages;
 
-  const ItemsScreen({super.key, required this.zone});
+  const ItemsScreen({
+    super.key,
+    required this.zone,
+    required this.zones,
+    required this.storages,
+  });
+
 
   @override
   State<ItemsScreen> createState() => _ItemsScreenState();
@@ -20,10 +69,15 @@ class ItemsScreen extends StatefulWidget {
 
 class _ItemsScreenState extends State<ItemsScreen> {
   final _itemsBox = Hive.box<Item>('items');
+  String? userPlan;
+  bool planLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   String _sortOption = 'date_desc';
   String? _imagePath;
+  List<Zone> get zones => widget.zones;
+  List<Storage> get storages => widget.storages;
+
 
   @override
   void initState() {
@@ -33,6 +87,34 @@ class _ItemsScreenState extends State<ItemsScreen> {
         _searchText = _searchController.text.trim().toLowerCase();
       });
     });
+
+    _loadUserPlan(); // ✅ Загружаем план пользователя при инициализации
+  }
+  
+  Future<void> _loadUserPlan() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final data = doc.data();
+      if (data != null && data.containsKey('plan')) {
+        setState(() {
+          userPlan = data['plan'];
+          planLoading = false;
+        });
+      } else {
+        setState(() {
+          userPlan = 'free';
+          planLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        userPlan = 'free';
+        planLoading = false;
+      });
+    }
   }
 
   Future<String?> saveImagePermanently(XFile image) async {
@@ -170,7 +252,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
 				    padding: const EdgeInsets.only(top: 8.0),
 				    child: SizedBox(
 					  height: 100,
-					  child: Image.file(File(_imagePath!), fit: BoxFit.cover),
+					  child: buildLocalImage(_imagePath, height: 100),
 				    ),
 				  ),
 			    ),
@@ -289,31 +371,53 @@ class _ItemsScreenState extends State<ItemsScreen> {
     final items = _getFilteredAndSortedItems();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black87,
-        foregroundColor: Colors.white,
-        title: Text('${AppLocalizations.of(context)!.itemsInZone}: ${widget.zone.name}'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (value) {
-              if (value == 'stats') {
-                _showZoneStats();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'stats',
-                child: Text(AppLocalizations.of(context)!.stats),
-              ),
-            ],
-          ),
-        ],
-      ),
+	  appBar: AppBar(
+	    backgroundColor: Colors.black87,
+	    foregroundColor: Colors.white,
+	    title: Text('${AppLocalizations.of(context)!.itemsInZone}: ${widget.zone.name}'),
+	    leading: IconButton(
+		  icon: const Icon(Icons.arrow_back, color: Colors.white),
+		  onPressed: () => Navigator.pop(context),
+	    ),
+	    actions: [
+		  if (!planLoading && userPlan == 'premium')
+		    IconButton(
+			  icon: const Icon(Icons.download, color: Colors.white),
+			  tooltip: AppLocalizations.of(context)!.exportToExcel,
+			  onPressed: () async {
+			    final path = await ExportService.exportItemsToExcel(
+				  items,
+				  zones,
+				  storages,
+			    );
+			    if (!mounted) return;
+			    ScaffoldMessenger.of(context).showSnackBar(
+				  SnackBar(
+				    content: Text(path != null
+					    ? 'Файл сохранён: $path'
+					    : 'Нет доступа к хранилищу'),
+				  ),
+			    );
+			  },
+		    ),
+
+		  PopupMenuButton<String>(
+		    icon: const Icon(Icons.more_vert, color: Colors.white),
+		    onSelected: (value) {
+			  if (value == 'stats') {
+			    _showZoneStats();
+			  }
+		    },
+		    itemBuilder: (context) => [
+			  PopupMenuItem(
+			    value: 'stats',
+			    child: Text(AppLocalizations.of(context)!.stats),
+			  ),
+		    ],
+		  ),
+	    ],
+	  ),
+
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -410,23 +514,18 @@ class _ItemsScreenState extends State<ItemsScreen> {
                           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                           child: ListTile(
 							leading: item.imagePath != null
-								? GestureDetector(
-									onTap: () {
-									  Navigator.push(
-										context,
-										MaterialPageRoute(
-										  builder: (_) => FullImageScreen(imagePath: item.imagePath!),
-										),
-									  );
-									},
-									child: Image.file(
-									  File(item.imagePath!),
-									  width: 48,
-									  height: 48,
-									  fit: BoxFit.cover,
-									),
-								  )
-								: const Icon(Icons.inventory, color: Colors.white),
+							  ? GestureDetector(
+								  onTap: () {
+									Navigator.push(
+									  context,
+									  MaterialPageRoute(
+										builder: (_) => FullImageScreen(imagePath: item.imagePath!),
+									  ),
+									);
+								  },
+								  child: buildImageWithFirebaseFallback(item.imagePath, 'items/${item.id}.jpg'),
+								)
+							  : const Icon(Icons.inventory, color: Colors.white),
                             title: Text(item.name,
                                 style: const TextStyle(color: Colors.white)),
                             subtitle: Text(subtitleText.toString(),

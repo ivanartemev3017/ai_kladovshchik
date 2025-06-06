@@ -1,13 +1,13 @@
 buildscript {
-    ext.kotlin_version = '1.9.22'
+    ext.kotlin_version = '1.9.24'
     repositories {
         google()
         mavenCentral()
     }
-
     dependencies {
+        classpath 'com.android.tools.build:gradle:8.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-		classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.gms:google-services:4.3.15'
     }
 }
 
@@ -26,6 +26,20 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
+// ✅ clean task
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }
+
+// ✅ загрузка flutterRoot — обязательно оставить
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+def flutterRoot = localProperties.getProperty("flutter.sdk")
+
+// ❌ НЕ добавляй! — УДАЛИ, если осталось
+// apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"

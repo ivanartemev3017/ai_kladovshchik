@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ai_kladovshchik/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/backup_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -153,6 +155,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }
                           },
                   ),
+				  ElevatedButton.icon(
+				    icon: const Icon(Icons.feedback),
+				    label: Text(AppLocalizations.of(context)!.feedback),
+				    onPressed: () async {
+					  final Uri emailUri = Uri(
+					    scheme: 'mailto',
+					    path: 'ivan.sergeevich3017@gmail.com',
+					    query: 'subject=Feedback%20from%20AI%20Kladovshchik',
+					  );
+					  if (await canLaunchUrl(emailUri)) {
+					    await launchUrl(emailUri);
+					  } else {
+					    ScaffoldMessenger.of(context).showSnackBar(
+						  SnackBar(content: Text(AppLocalizations.of(context)!.feedbackError)),
+					    );
+					  }
+				    },
+				  ),
+				 
                   ElevatedButton.icon(
                     icon: const Icon(Icons.restore),
                     label: Text(AppLocalizations.of(context)!.restoreBackup),

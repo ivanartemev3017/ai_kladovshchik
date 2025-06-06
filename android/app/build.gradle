@@ -23,8 +23,8 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.ai_kladovshchik_final"
-    compileSdkVersion 34
+    namespace "com.ivanartemev.aiwarehouse"
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -41,24 +41,38 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.ai_kladovshchik_final"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        applicationId "com.ivanartemev.aiwarehouse"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
+	def keystoreProperties = new Properties()
+	def keystorePropertiesFile = rootProject.file("key.properties")
+	if (keystorePropertiesFile.exists()) {
+		keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+	}
+
+signingConfigs {
+    release {
+        storeFile rootProject.file(keystoreProperties['storeFile'])
+        storePassword keystoreProperties['storePassword']
+        keyAlias keystoreProperties['keyAlias']
+        keyPassword keystoreProperties['keyPassword']
+    }
+}
+
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
+            shrinkResources false
+            minifyEnabled false
         }
     }
 }
+
 
 flutter {
     source '../..'
@@ -67,7 +81,14 @@ flutter {
 // dependencies {}
 
 dependencies {
-    // ✅ Зависимость App Check для режима отладки
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'com.google.android.material:material:1.11.0'
+    
+    // SplashScreen (у тебя уже есть)
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    
+    // Firebase AppCheck (у тебя уже есть)
     implementation 'com.google.firebase:firebase-appcheck-debug:17.0.0'
 }
 
